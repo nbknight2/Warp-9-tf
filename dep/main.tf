@@ -20,14 +20,39 @@ provider "aws" {
 resource "aws_instance" "db" {
   ami = "ami-0d5eff06f840b45e9"
   instance_type = "t2.micro"
+
+  tags = {
+    Name = "DB Server"
+  }
 }
 
 resource "aws_instance" "web" {
   ami = "ami-0d5eff06f840b45e9"
   instance_type = "t2.micro"
 
+  tags = {
+    Name = "Web Server"
+  }
+
   depends_on = [
     aws_instance.db
   ]
+}
+
+# ////////////////////////
+# Data
+# ///////////////////////
+data "aws_instance" "dbsearch" {
+  filter {
+     name = "tag:Name"
+     values = ["DB Server"]
+  }
+}
+
+# ////////////////////////
+# Output
+# ///////////////////////
+output "dbservers" {
+  value = data.aws_instance.dbsearch.availability_zone
 }
 
